@@ -1,5 +1,5 @@
 import unittest
-from odblib import ODBLib
+from ..odblib import ODBLib
 from mock import patch
 
 
