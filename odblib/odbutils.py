@@ -20,7 +20,10 @@ class ODBUtils:
         return self.serial_device.readline()
 
     def engine_rpm(self):
-        self.send("01 0C\r")
+        data = self.send("01 0C\r")
+        data = data.split(" ")
+
+        return int("0x" + data[2] + data[3], 0)
 
     def set_serial_device(self, serial_device):
         self.serial_device = serial_device
