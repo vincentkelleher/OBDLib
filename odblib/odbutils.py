@@ -14,5 +14,13 @@ class ODBUtils:
         else:
             self.serial_device.open()
 
-    def set_serial(self, serial_device):
+    def send(self, data):
+        self.serial_device.write(data)
+
+        return self.serial_device.readline()
+
+    def engine_rpm(self):
+        self.send("01 0C\r")
+
+    def set_serial_device(self, serial_device):
         self.serial_device = serial_device

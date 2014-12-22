@@ -1,6 +1,7 @@
 import unittest
-from mockito import mock, spy, when
+from mock import MagicMock
 from ..odbutils import ODBUtils
+import serial
 
 
 class TestODBUtils(unittest.TestCase):
@@ -10,16 +11,30 @@ class TestODBUtils(unittest.TestCase):
     def setUp(self):
         self.odb_utils = ODBUtils(self.serial_device_name, self.baudrate)
 
-        self.serial_mock = mock()
-        when(self.serial_mock).open().thenReturn()
+        self.serial_mock = serial.Serial()
+        self.serial_mock.open = MagicMock()
 
-        self.odbutils_spy = spy(self.odb_utils)
-        self.odbutils_spy.set_serial(self.serial_mock)
+        self.odb_utils.set_serial_device(self.serial_mock)
 
-        self.odbutils_spy.connect()
+        self.odb_utils.connect()
+        self.serial_mock.open.assert_called()
 
-    def test_engine_rpm(self):
-        pass
+    def test_send(self):
+        self.serial_mock.write = MagicMock()
+        self.serial_mock.readline = MagicMock(return_value="ok")
+
+        self.assertEquals("ok", self.odb_utils.send("test"))
+
+        self.serial_mock.write.assert_called_with("test")
+
+    # def test_engine_rpm(self):
+    # when(self.serial_mock).read().thenReturn("41 0C 1A F8")
+    #
+    #     engine_rpm_value = self.odbutils_spy.engine_rpm()
+    #     verify(self.odbutils_spy).send("01 0C\r")
+    #
+    #     self.assertEquals(6904, engine_rpm_value)
+
 
 if __name__ == '__main__':
     unittest.main()
