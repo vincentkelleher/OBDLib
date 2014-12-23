@@ -1,6 +1,6 @@
 import unittest
 from mock import MagicMock
-from ..odbutils import ODBUtils
+from ..ODBUtils import ODBUtils
 import serial
 
 
@@ -11,29 +11,30 @@ class TestODBUtils(unittest.TestCase):
     def setUp(self):
         self.odb_utils = ODBUtils(self.serial_device_name, self.baudrate)
 
-        self.serial_mock = serial.Serial()
-        self.serial_mock.open = MagicMock()
-        self.serial_mock.write = MagicMock()
+        self.serial_device_mock = serial.Serial()
+        self.serial_device_mock.open = MagicMock()
+        self.serial_device_mock.write = MagicMock()
 
-        self.odb_utils.set_serial_device(self.serial_mock)
+        self.odb_utils.serial_device = self.serial_device_mock
 
         self.odb_utils.connect()
-        self.serial_mock.open.assert_called()
+        self.serial_device_mock.open.assert_called_once_with()
 
     def test_send(self):
-        self.serial_mock.readline = MagicMock(return_value="ok")
+        self.serial_device_mock.readline = MagicMock(return_value="41 0C 1A F8")
 
-        self.assertEquals("ok", self.odb_utils.send("test"))
+        self.assertEquals("41 0C 1A F8".split(" "), self.odb_utils.send("01", "0C"))
 
-        self.serial_mock.write.assert_called_with("test")
+        self.serial_device_mock.write.assert_called_once_with("01 0C\r")
+        self.serial_device_mock.readline.assert_called_once_with()
 
     def test_engine_rpm(self):
-        self.serial_mock.readline = MagicMock(return_value="41 0C 1A F8")
-        self.odb_utils.send = MagicMock(return_value=self.serial_mock.readline())
+        self.serial_device_mock.readline = MagicMock(return_value="41 0C 1A F8")
 
         self.assertEquals(6904, self.odb_utils.engine_rpm())
 
-        self.odb_utils.send.assert_called_with("01 0C\r")
+        self.serial_device_mock.write.assert_called_once_with("01 0C\r")
+        self.serial_device_mock.readline.assert_called_once_with()
 
 if __name__ == '__main__':
     unittest.main()
