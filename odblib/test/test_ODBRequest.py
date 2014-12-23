@@ -1,6 +1,6 @@
 import unittest
-from ODBUtils import ODBRequest
-from ODBUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException
+from ..ODBUtils import ODBRequest
+from ..ODBUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException
 from mock import MagicMock
 
 
