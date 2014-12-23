@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import unittest
 from ..ODBUtils import ODBRequest
 from ..ODBUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException

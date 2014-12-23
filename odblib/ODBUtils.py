@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from ODBUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException
+from __future__ import absolute_import
+
+from .ODBUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException
 import serial
 
 
@@ -110,9 +112,4 @@ class ODBRequest:
     @data.setter
     def data(self, data):
         self._data = data
-
-
-class ODBResponse:
-    def __init__(self, data):
-        self.data = data.split(" ")
 
