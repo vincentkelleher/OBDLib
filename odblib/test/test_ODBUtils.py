@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import unittest
 from mock import MagicMock
 from ..ODBUtils import ODBUtils
@@ -31,7 +33,7 @@ class TestODBUtils(unittest.TestCase):
     def test_engine_rpm(self):
         self.serial_device_mock.readline = MagicMock(return_value="41 0C 1A F8")
 
-        self.assertEquals(6904, self.odb_utils.engine_rpm())
+        self.assertEquals(1726, self.odb_utils.engine_rpm())
 
         self.serial_device_mock.write.assert_called_once_with("01 0C\r")
         self.serial_device_mock.readline.assert_called_once_with()
