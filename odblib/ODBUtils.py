@@ -27,7 +27,7 @@ class ODBUtils:
     def engine_rpm(self):
         data = self.send("01", "0C")
 
-        return int("0x" + data[2] + data[3], 0)
+        return int("0x" + data[2] + data[3], 0) / 4
 
     @property
     def serial_device(self):
