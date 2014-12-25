@@ -1,42 +1,42 @@
 from __future__ import absolute_import
 
 import unittest
+from bluetooth import BluetoothSocket, RFCOMM
 from mock import MagicMock
-from ..ODBUtils import ODBUtils
-import serial
+from ..ODBUtils import ODBUtils, DATA_SIZE
 
 
 class TestODBUtils(unittest.TestCase):
     serial_device_name = "TEST_DEVICE"
-    baudrate = 38400
+    port = 1
 
     def setUp(self):
-        self.odb_utils = ODBUtils(self.serial_device_name, self.baudrate)
+        self.odb_utils = ODBUtils(self.serial_device_name, self.port)
 
-        self.serial_device_mock = serial.Serial()
-        self.serial_device_mock.open = MagicMock()
-        self.serial_device_mock.write = MagicMock()
+        self.bluetooth_device_mock = BluetoothSocket(RFCOMM)
+        self.bluetooth_device_mock.connect = MagicMock()
+        self.bluetooth_device_mock.send = MagicMock()
 
-        self.odb_utils.serial_device = self.serial_device_mock
+        self.odb_utils.bluetooth_device = self.bluetooth_device_mock
 
         self.odb_utils.connect()
-        self.serial_device_mock.open.assert_called_once_with()
+        self.bluetooth_device_mock.connect.assert_called_once_with((self.serial_device_name, self.port))
 
     def test_send(self):
-        self.serial_device_mock.readline = MagicMock(return_value="41 0C 1A F8")
+        self.bluetooth_device_mock.recv = MagicMock(return_value="41 0C 1A F8")
 
         self.assertEquals("41 0C 1A F8".split(" "), self.odb_utils.send("01", "0C"))
 
-        self.serial_device_mock.write.assert_called_once_with("01 0C\r")
-        self.serial_device_mock.readline.assert_called_once_with()
+        self.bluetooth_device_mock.send.assert_called_once_with("01 0C\r")
+        self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
 
     def test_engine_rpm(self):
-        self.serial_device_mock.readline = MagicMock(return_value="41 0C 1A F8")
+        self.bluetooth_device_mock.recv = MagicMock(return_value="41 0C 1A F8")
 
         self.assertEquals(1726, self.odb_utils.engine_rpm())
 
-        self.serial_device_mock.write.assert_called_once_with("01 0C\r")
-        self.serial_device_mock.readline.assert_called_once_with()
+        self.bluetooth_device_mock.send.assert_called_once_with("01 0C\r")
+        self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
 
 if __name__ == '__main__':
     unittest.main()

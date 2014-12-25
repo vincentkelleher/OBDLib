@@ -2,24 +2,24 @@
 from __future__ import absolute_import
 
 from .ODBUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException
-import serial
+from bluetooth import BluetoothSocket, RFCOMM
+
+
+DATA_SIZE = 1024
 
 
 class ODBUtils:
-    def __init__(self, serial_device_name, baudrate):
-        self._serial_device = None
+    def __init__(self, bluetooth_device_name, port):
+        self._bluetooth_device = BluetoothSocket(RFCOMM)
 
-        self._serial_device_name = serial_device_name
-        self._baudrate = baudrate
+        self._bluetooth_device_name = bluetooth_device_name
+        self._port = port
 
     def connect(self):
-        if self.serial_device is None:
-            self.serial_device = serial.Serial(self.serial_device_name, self.baudrate, timeout=1)
-        else:
-            self.serial_device.open()
+        self.bluetooth_device.connect((self.bluetooth_device_name, self.port))
 
     def send(self, mode, pid):
-        odb_request = ODBRequest(self.serial_device, mode, pid)
+        odb_request = ODBRequest(self.bluetooth_device, mode, pid)
         odb_request.send()
 
         return odb_request.data
@@ -30,28 +30,28 @@ class ODBUtils:
         return int("0x" + data[2] + data[3], 0) / 4
 
     @property
-    def serial_device(self):
-        return self._serial_device
+    def bluetooth_device(self):
+        return self._bluetooth_device
 
-    @serial_device.setter
-    def serial_device(self, serial_device):
-        self._serial_device = serial_device
-
-    @property
-    def serial_device_name(self):
-        return self._serial_device_name
-
-    @serial_device_name.setter
-    def serial_device_name(self, serial_device_name):
-        self._serial_device_name = serial_device_name
+    @bluetooth_device.setter
+    def bluetooth_device(self, bluetooth_device):
+        self._bluetooth_device = bluetooth_device
 
     @property
-    def baudrate(self):
-        return self._baudrate
+    def bluetooth_device_name(self):
+        return self._bluetooth_device_name
 
-    @baudrate.setter
-    def baudrate(self, baudrate):
-        self._baudrate = baudrate
+    @bluetooth_device_name.setter
+    def bluetooth_device_name(self, bluetooth_device_name):
+        self._bluetooth_device_name = bluetooth_device_name
+
+    @property
+    def port(self):
+        return self._port
+
+    @port.setter
+    def port(self, port):
+        self._port = port
 
 
 class ODBRequest:
@@ -62,8 +62,8 @@ class ODBRequest:
         self._data = None
 
     def send(self):
-        self.serial_device.write(self.mode + " " + self.pid + "\r")
-        data = self.serial_device.readline().split(" ")
+        self.serial_device.send(self.mode + " " + self.pid + "\r")
+        data = self.serial_device.recv(DATA_SIZE).split(" ")
 
         self.validate_checksum(data)
         self.data = data
