@@ -10,12 +10,14 @@ DATA_SIZE = 1024
 
 class ODBUtils:
     def __init__(self, bluetooth_device_name, port):
-        self._bluetooth_device = BluetoothSocket(RFCOMM)
-
+        self._bluetooth_device = None
         self._bluetooth_device_name = bluetooth_device_name
         self._port = port
 
     def connect(self):
+        if self.bluetooth_device is None:
+            self.bluetooth_device = BluetoothSocket(RFCOMM)
+
         self.bluetooth_device.connect((self.bluetooth_device_name, self.port))
 
     def send(self, mode, pid):

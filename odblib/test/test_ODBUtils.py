@@ -13,7 +13,7 @@ class TestODBUtils(unittest.TestCase):
     def setUp(self):
         self.odb_utils = ODBUtils(self.bluetooth_device_name, self.port)
 
-        self.bluetooth_device_mock = BluetoothSocket(RFCOMM)
+        self.bluetooth_device_mock = MagicMock()
         self.bluetooth_device_mock.connect = MagicMock()
         self.bluetooth_device_mock.send = MagicMock()
 
