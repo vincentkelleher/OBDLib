@@ -7,11 +7,11 @@ from ..ODBUtils import ODBUtils, DATA_SIZE
 
 
 class TestODBUtils(unittest.TestCase):
-    serial_device_name = "TEST_DEVICE"
+    bluetooth_device_name = "TEST_DEVICE"
     port = 1
 
     def setUp(self):
-        self.odb_utils = ODBUtils(self.serial_device_name, self.port)
+        self.odb_utils = ODBUtils(self.bluetooth_device_name, self.port)
 
         self.bluetooth_device_mock = BluetoothSocket(RFCOMM)
         self.bluetooth_device_mock.connect = MagicMock()
@@ -20,7 +20,7 @@ class TestODBUtils(unittest.TestCase):
         self.odb_utils.bluetooth_device = self.bluetooth_device_mock
 
         self.odb_utils.connect()
-        self.bluetooth_device_mock.connect.assert_called_once_with((self.serial_device_name, self.port))
+        self.bluetooth_device_mock.connect.assert_called_once_with((self.bluetooth_device_name, self.port))
 
     def test_send(self):
         self.bluetooth_device_mock.recv = MagicMock(return_value="41 0C 1A F8")
