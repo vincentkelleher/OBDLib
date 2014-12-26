@@ -1,12 +1,16 @@
 from __future__ import absolute_import
 
 import unittest
-from bluetooth import BluetoothSocket, RFCOMM
-from mock import MagicMock
+import bluetooth
+from mock import MagicMock, patch
 from ..ODBUtils import ODBUtils, DATA_SIZE
 
 
 class TestODBUtils(unittest.TestCase):
+    available_devices = [
+        ("TEST_DEVICE_ADDRESS", "TEST_DEVICE"),
+        ("TEST_DEVICE_2_ADDRESS", "TEST_DEVICE_2"),
+    ]
     bluetooth_device_name = "TEST_DEVICE"
     port = 1
 
@@ -21,6 +25,19 @@ class TestODBUtils(unittest.TestCase):
 
         self.odb_utils.connect()
         self.bluetooth_device_mock.connect.assert_called_once_with((self.bluetooth_device_name, self.port))
+
+    @patch("bluetooth.discover_devices")
+    def test_scan(self, bluetooth_discover_devices_mock):
+        bluetooth_discover_devices_mock.return_value = self.available_devices
+
+        scanned_devices = ODBUtils.scan()
+        bluetooth_discover_devices_mock.assert_called_once_with()
+
+        self.assertEquals(len(self.available_devices), len(scanned_devices))
+        self.assertEquals(self.available_devices[0][0], scanned_devices[0][0])
+        self.assertEquals(self.available_devices[0][1], scanned_devices[0][1])
+        self.assertEquals(self.available_devices[1][0], scanned_devices[1][0])
+        self.assertEquals(self.available_devices[1][1], scanned_devices[1][1])
 
     def test_send(self):
         self.bluetooth_device_mock.recv = MagicMock(return_value="41 0C 1A F8")
@@ -37,6 +54,7 @@ class TestODBUtils(unittest.TestCase):
 
         self.bluetooth_device_mock.send.assert_called_once_with("01 0C\r")
         self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
+
 
 if __name__ == '__main__':
     unittest.main()

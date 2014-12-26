@@ -2,23 +2,27 @@
 from __future__ import absolute_import
 
 from .ODBUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException
+import bluetooth
 from bluetooth import BluetoothSocket, RFCOMM
-
 
 DATA_SIZE = 1024
 
 
 class ODBUtils:
-    def __init__(self, bluetooth_device_name, port):
+    def __init__(self, bluetooth_device_address, bluetooth_device_port):
         self._bluetooth_device = None
-        self._bluetooth_device_name = bluetooth_device_name
-        self._port = port
+        self._bluetooth_device_address = bluetooth_device_address
+        self._bluetooth_device_port = bluetooth_device_port
+
+    @staticmethod
+    def scan():
+        return bluetooth.discover_devices()
 
     def connect(self):
         if self.bluetooth_device is None:
             self.bluetooth_device = BluetoothSocket(RFCOMM)
 
-        self.bluetooth_device.connect((self.bluetooth_device_name, self.port))
+        self.bluetooth_device.connect((self.bluetooth_device_address, self.bluetooth_device_port))
 
     def send(self, mode, pid):
         odb_request = ODBRequest(self.bluetooth_device, mode, pid)
@@ -40,20 +44,20 @@ class ODBUtils:
         self._bluetooth_device = bluetooth_device
 
     @property
-    def bluetooth_device_name(self):
-        return self._bluetooth_device_name
+    def bluetooth_device_address(self):
+        return self._bluetooth_device_address
 
-    @bluetooth_device_name.setter
-    def bluetooth_device_name(self, bluetooth_device_name):
-        self._bluetooth_device_name = bluetooth_device_name
+    @bluetooth_device_address.setter
+    def bluetooth_device_address(self, bluetooth_device_address):
+        self._bluetooth_device_address = bluetooth_device_address
 
     @property
-    def port(self):
-        return self._port
+    def bluetooth_device_port(self):
+        return self._bluetooth_device_port
 
-    @port.setter
-    def port(self, port):
-        self._port = port
+    @bluetooth_device_port.setter
+    def bluetooth_device_port(self, bluetooth_device_port):
+        self._bluetooth_device_port = bluetooth_device_port
 
 
 class ODBRequest:
