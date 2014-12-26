@@ -20,9 +20,15 @@ Go to your local workspace
 ```
 cd /path/to/your/workspace/
 ```
+
 Clone the project from Github
 ``` 
 git clone https://github.com/k2r79/ODBLib.git
+```
+
+Go to the cloned directory
+```
+cd ODBLIb
 ```
 
 First install ***libbluetooth-dev*** on your system
