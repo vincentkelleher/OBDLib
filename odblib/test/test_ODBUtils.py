@@ -31,7 +31,7 @@ class TestODBUtils(unittest.TestCase):
         bluetooth_discover_devices_mock.return_value = self.available_devices
 
         scanned_devices = ODBUtils.scan()
-        bluetooth_discover_devices_mock.assert_called_once_with()
+        bluetooth_discover_devices_mock.assert_called_once_with(duration=10, flush_cache=True, lookup_names=True)
 
         self.assertEquals(len(self.available_devices), len(scanned_devices))
         self.assertEquals(self.available_devices[0][0], scanned_devices[0][0])

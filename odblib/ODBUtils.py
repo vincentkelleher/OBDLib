@@ -16,7 +16,14 @@ class ODBUtils:
 
     @staticmethod
     def scan():
-        return bluetooth.discover_devices()
+        print("Scanning for nearby devices...")
+        nearby_devices = bluetooth.discover_devices(duration=10, flush_cache=True, lookup_names=True)
+        print("Found %d devices..." % len(nearby_devices))
+
+        for nearby_device in nearby_devices:
+            print(" - %s at %s" % (nearby_device[1], nearby_device[0]))
+
+        return nearby_devices
 
     def connect(self):
         if self.bluetooth_device is None:
