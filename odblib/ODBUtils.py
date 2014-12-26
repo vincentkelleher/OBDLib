@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+import math
 
 from .ODBUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException
 import bluetooth
@@ -36,6 +37,11 @@ class ODBUtils:
         odb_request.send()
 
         return odb_request.data
+
+    def engine_load(self):
+        data = self.send("01", "04")
+
+        return math.floor(float(int("0x" + data[2], 0)) / 255 * 100)
 
     def engine_rpm(self):
         data = self.send("01", "0C")

@@ -33,6 +33,9 @@ command_group.add_argument("--pid",
                     help="PID of the command to send to the bluetooth device")
 
 interpreted_command_group = main_parser.add_argument_group("Interpreted commands")
+interpreted_command_group.add_argument("--engine-load",
+                    action="store_true",
+                    help="get the current engine load")
 interpreted_command_group.add_argument("--engine-rpm",
                     action="store_true",
                     help="get the current engine RPM")
@@ -60,6 +63,17 @@ elif args.address is not None \
     print("Returned data : %s" % data)
 elif args.address is not None \
         and args.port is not None \
+        and args.engine_load:
+    odbutils = ODBUtils(args.address, args.port)
+    odbutils.connect()
+
+    print("Collecting engine load...")
+    while True:
+        current_load = odbutils.engine_load()
+        print("Current engine load : %d%%" % current_load)
+        time.sleep(200)
+elif args.address is not None \
+        and args.port is not None \
         and args.engine_rpm:
     odbutils = ODBUtils(args.address, args.port)
     odbutils.connect()
@@ -67,7 +81,7 @@ elif args.address is not None \
     print("Collecting engine RPM...")
     while True:
         current_rpm = odbutils.engine_rpm()
-        print("Current RPM : %d" % current_rpm)
+        print("Current RPM : %d rpm" % current_rpm)
         time.sleep(200)
 elif args.address is not None \
         and args.port is not None \
@@ -78,7 +92,7 @@ elif args.address is not None \
     print("Collecting vehicule speed...")
     while True:
         current_speed = odbutils.vehicule_speed()
-        print("Current speed : %d" % current_speed)
+        print("Current speed : %d km/h" % current_speed)
         time.sleep(200)
 else:
     main_parser.print_help()
