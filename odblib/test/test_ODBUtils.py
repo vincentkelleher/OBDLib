@@ -55,6 +55,13 @@ class TestODBUtils(unittest.TestCase):
         self.bluetooth_device_mock.send.assert_called_once_with("01 0C\r")
         self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
 
+    def test_vehicule_speed(self):
+        self.bluetooth_device_mock.recv = MagicMock(return_value="41 0D B4")
+
+        self.assertEquals(180, self.odb_utils.vehicule_speed())
+
+        self.bluetooth_device_mock.send.assert_called_once_with("01 0D\r")
+        self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
 
 if __name__ == '__main__':
     unittest.main()

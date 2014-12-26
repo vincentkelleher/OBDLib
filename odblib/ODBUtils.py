@@ -42,6 +42,11 @@ class ODBUtils:
 
         return int("0x" + data[2] + data[3], 0) / 4
 
+    def vehicule_speed(self):
+        data = self.send("01", "0D")
+
+        return int("0x" + data[2], 0)
+
     @property
     def bluetooth_device(self):
         return self._bluetooth_device
