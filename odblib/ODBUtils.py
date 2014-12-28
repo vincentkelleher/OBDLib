@@ -86,7 +86,7 @@ class ODBRequest:
         self._data = None
 
     def send(self):
-        query_string = self.mode + " " + self.pid
+        query_string = self.mode + self.pid + "\r"
 
         print("Sending %s..." % repr(query_string))
         self.serial_device.send(query_string)

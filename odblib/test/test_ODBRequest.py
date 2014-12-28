@@ -47,7 +47,7 @@ class TestODBRequest(unittest.TestCase):
         self.odb_request.send()
         self.assertEquals(self.test_valid_input.split(" "), self.odb_request.data)
 
-        self.bluetooth_device_mock.send.assert_called_once_with("01 0C")
+        self.bluetooth_device_mock.send.assert_called_once_with("010C\r")
         self.odb_request.validate_checksum.assert_called_once_with(self.test_valid_input.split(" "))
 
 
