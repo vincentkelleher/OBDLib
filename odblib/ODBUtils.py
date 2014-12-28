@@ -86,8 +86,13 @@ class ODBRequest:
         self._data = None
 
     def send(self):
-        self.serial_device.send(self.mode + " " + self.pid + "\r")
+        query_string = self.mode + " " + self.pid
+
+        print("Sending %s..." % repr(query_string))
+        self.serial_device.send(query_string)
+
         data = self.serial_device.recv(DATA_SIZE).split(" ")
+        print("Received %s..." % repr(data))
 
         self.validate_checksum(data)
         self.data = data

@@ -44,7 +44,7 @@ class TestODBUtils(unittest.TestCase):
 
         self.assertEquals("41 0C 1A F8".split(" "), self.odb_utils.send("01", "0C"))
 
-        self.bluetooth_device_mock.send.assert_called_once_with("01 0C\r")
+        self.bluetooth_device_mock.send.assert_called_once_with("01 0C")
         self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
 
     def test_engine_load(self):
@@ -52,7 +52,7 @@ class TestODBUtils(unittest.TestCase):
 
         self.assertEquals(33, self.odb_utils.engine_load())
 
-        self.bluetooth_device_mock.send.assert_called_once_with("01 04\r")
+        self.bluetooth_device_mock.send.assert_called_once_with("01 04")
         self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
 
     def test_engine_rpm(self):
@@ -60,7 +60,7 @@ class TestODBUtils(unittest.TestCase):
 
         self.assertEquals(1726, self.odb_utils.engine_rpm())
 
-        self.bluetooth_device_mock.send.assert_called_once_with("01 0C\r")
+        self.bluetooth_device_mock.send.assert_called_once_with("01 0C")
         self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
 
     def test_vehicule_speed(self):
@@ -68,7 +68,7 @@ class TestODBUtils(unittest.TestCase):
 
         self.assertEquals(180, self.odb_utils.vehicule_speed())
 
-        self.bluetooth_device_mock.send.assert_called_once_with("01 0D\r")
+        self.bluetooth_device_mock.send.assert_called_once_with("01 0D")
         self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
 
 if __name__ == '__main__':
