@@ -33,7 +33,10 @@ class ODBUtils:
         self.bluetooth_device.connect((self.bluetooth_device_address, self.bluetooth_device_port))
 
     def initialize(self):
+        print("Initializing ELM327...")
         self.send_command("AT Z")
+
+        print("Selecting protocol...")
         self.send_command("AT SP 0")
 
     def send(self, mode, pid):
@@ -100,14 +103,26 @@ class ODBCommand(object):
         print("Sending %s..." % repr(query_string))
         self.serial_device.send(query_string)
 
-        tmp_data = None
+        self.data = ""
         while True:
             tmp_data = self.serial_device.recv(DATA_SIZE)
-            if len(tmp_data) < 1:
+            print("Received %s..." % repr(tmp_data))
+
+            self.data += tmp_data
+
+            if len(tmp_data) < 1 \
+                    or tmp_data[-1] == ">":
                 break
 
-            self.data = tmp_data
-            print("Received %s..." % repr(self.data))
+        self.extract_data()
+
+    def extract_data(self):
+        extracted_data = []
+        for data_value in self.data.split("\r"):
+            if len(data_value) > 0:
+                extracted_data.append(data_value)
+
+        self.data = extracted_data[:-1]
 
     @property
     def serial_device(self):
@@ -125,6 +140,14 @@ class ODBCommand(object):
     def command(self, command):
         self._command = command
 
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, data):
+        self._data = data
+
 
 class ODBRequest(ODBCommand):
     def __init__(self, serial_device, mode, pid):
@@ -134,7 +157,6 @@ class ODBRequest(ODBCommand):
 
     def send(self):
         super(ODBRequest, self).send()
-
         self.validate_checksum()
 
     def validate_checksum(self):
@@ -142,7 +164,7 @@ class ODBRequest(ODBCommand):
                 or len(self.data) == 0:
             raise NoResponseException()
 
-        self.data = self.data.split(" ")
+        self.data = self.data[-1].split(" ")
         response_mode = int(self.data[0])
 
         if response_mode != int(self.mode) + 40:
@@ -166,12 +188,4 @@ class ODBRequest(ODBCommand):
     @pid.setter
     def pid(self, pid):
         self._pid = pid
-
-    @property
-    def data(self):
-        return self._data
-
-    @data.setter
-    def data(self, data):
-        self._data = data
 
