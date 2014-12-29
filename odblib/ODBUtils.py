@@ -32,11 +32,21 @@ class ODBUtils:
 
         self.bluetooth_device.connect((self.bluetooth_device_address, self.bluetooth_device_port))
 
+    def initialize(self):
+        self.send_command("AT Z")
+        self.send_command("AT SP 0")
+
     def send(self, mode, pid):
         odb_request = ODBRequest(self.bluetooth_device, mode, pid)
         odb_request.send()
 
         return odb_request.data
+
+    def send_command(self, command):
+        odb_command = ODBCommand(self.bluetooth_device, command)
+        odb_command.send()
+
+        return odb_command.data
 
     def engine_load(self):
         data = self.send("01", "04")
@@ -78,43 +88,26 @@ class ODBUtils:
         self._bluetooth_device_port = bluetooth_device_port
 
 
-class ODBRequest:
-    def __init__(self, serial_device, mode, pid):
+class ODBCommand(object):
+    def __init__(self, serial_device, command):
         self._serial_device = serial_device
-        self._mode = mode
-        self._pid = pid
+        self._command = command
         self._data = None
 
     def send(self):
-        query_string = self.mode + self.pid + "\r"
+        query_string = self.command + "\r"
 
         print("Sending %s..." % repr(query_string))
         self.serial_device.send(query_string)
 
-        data = None
+        tmp_data = None
         while True:
             tmp_data = self.serial_device.recv(DATA_SIZE)
             if len(tmp_data) < 1:
                 break
 
-            data = tmp_data.split(" ")
-            print("Received %s..." % repr(tmp_data))
-
-        self.validate_checksum(data)
-        self.data = data
-
-    def validate_checksum(self, data):
-        if data is None \
-                or len(data) == 0:
-            raise NoResponseException()
-
-        response_mode = int(data[0])
-
-        if response_mode != int(self.mode) + 40:
-            raise InvalidResponseModeException(self.mode, response_mode - 40)
-
-        if data[1] != self.pid:
-            raise InvalidResponsePIDException(self.pid, data[1])
+            self.data = tmp_data
+            print("Received %s..." % repr(self.data))
 
     @property
     def serial_device(self):
@@ -123,6 +116,40 @@ class ODBRequest:
     @serial_device.setter
     def serial_device(self, serial_device):
         self._serial_device = serial_device
+
+    @property
+    def command(self):
+        return self._command
+
+    @command.setter
+    def command(self, command):
+        self._command = command
+
+
+class ODBRequest(ODBCommand):
+    def __init__(self, serial_device, mode, pid):
+        super(ODBRequest, self).__init__(serial_device, mode + " " + pid)
+        self._mode = mode
+        self._pid = pid
+
+    def send(self):
+        super(ODBRequest, self).send()
+
+        self.validate_checksum()
+
+    def validate_checksum(self):
+        if self.data is None \
+                or len(self.data) == 0:
+            raise NoResponseException()
+
+        self.data = self.data.split(" ")
+        response_mode = int(self.data[0])
+
+        if response_mode != int(self.mode) + 40:
+            raise InvalidResponseModeException(self.mode, response_mode - 40)
+
+        if self.data[1] != self.pid:
+            raise InvalidResponsePIDException(self.pid, self.data[1])
 
     @property
     def mode(self):
