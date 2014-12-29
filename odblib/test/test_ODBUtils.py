@@ -27,10 +27,10 @@ class TestODBUtils(unittest.TestCase):
         self.bluetooth_device_mock.connect.assert_called_once_with((self.bluetooth_device_name, self.port))
 
     def test_initialize(self):
-        self.bluetooth_device_mock.recv = MagicMock(side_effect=["AT Z\r\r\rELM327 v2.1\r\r\r>", "AT SP 0\rOK\r\r>"])
+        self.bluetooth_device_mock.recv = MagicMock(side_effect=["AT Z\r\r\rELM327 v2.1\r\r\r>", "AT SP 00\rOK\r\r>", "AT SP 0\rOK\r\r>"])
         self.odb_utils.initialize()
 
-        self.bluetooth_device_mock.send.assert_has_calls([call("AT Z\r"), call("AT SP 0\r")])
+        self.bluetooth_device_mock.send.assert_has_calls([call("AT Z\r"), call("AT SP 00\r"), call("AT SP 0\r")])
         self.bluetooth_device_mock.recv.assert_has_calls(
             [call(DATA_SIZE), call(DATA_SIZE)])
 

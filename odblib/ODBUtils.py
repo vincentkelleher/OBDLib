@@ -36,6 +36,9 @@ class ODBUtils:
         print("Initializing ELM327...")
         self.send_command("AT Z")
 
+        print("Deleting stored protocol...")
+        self.send_command("AT SP 00")
+
         print("Selecting protocol...")
         self.send_command("AT SP 0")
 
