@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 import math
+import bluetooth
 
 from .ODBUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException
-import bluetooth
 from bluetooth import BluetoothSocket, RFCOMM
 
 DATA_SIZE = 1024
@@ -91,8 +91,14 @@ class ODBRequest:
         print("Sending %s..." % repr(query_string))
         self.serial_device.send(query_string)
 
-        data = self.serial_device.recv(DATA_SIZE).split(" ")
-        print("Received %s..." % repr(data))
+        data = None
+        while True:
+            tmp_data = self.serial_device.recv(DATA_SIZE)
+            if len(tmp_data) < 1:
+                break
+
+            data = tmp_data.split(" ")
+            print("Received %s..." % repr(tmp_data))
 
         self.validate_checksum(data)
         self.data = data

@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import unittest
 import bluetooth
-from mock import MagicMock, patch
+from mock import MagicMock, patch, call
 from ..ODBUtils import ODBUtils, DATA_SIZE
 
 
@@ -40,36 +40,36 @@ class TestODBUtils(unittest.TestCase):
         self.assertEquals(self.available_devices[1][1], scanned_devices[1][1])
 
     def test_send(self):
-        self.bluetooth_device_mock.recv = MagicMock(return_value="41 0C 1A F8")
+        self.bluetooth_device_mock.recv = MagicMock(side_effect=["41 0C 1A F8", ""])
 
         self.assertEquals("41 0C 1A F8".split(" "), self.odb_utils.send("01", "0C"))
 
         self.bluetooth_device_mock.send.assert_called_once_with("010C\r")
-        self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
+        self.bluetooth_device_mock.recv.assert_has_calls([call(DATA_SIZE), call(DATA_SIZE)])
 
     def test_engine_load(self):
-        self.bluetooth_device_mock.recv = MagicMock(return_value="41 04 55")
+        self.bluetooth_device_mock.recv = MagicMock(side_effect=["41 04 55", ""])
 
         self.assertEquals(33, self.odb_utils.engine_load())
 
         self.bluetooth_device_mock.send.assert_called_once_with("0104\r")
-        self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
+        self.bluetooth_device_mock.recv.assert_has_calls([call(DATA_SIZE), call(DATA_SIZE)])
 
     def test_engine_rpm(self):
-        self.bluetooth_device_mock.recv = MagicMock(return_value="41 0C 1A F8")
+        self.bluetooth_device_mock.recv = MagicMock(side_effect=["41 0C 1A F8", ""])
 
         self.assertEquals(1726, self.odb_utils.engine_rpm())
 
         self.bluetooth_device_mock.send.assert_called_once_with("010C\r")
-        self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
+        self.bluetooth_device_mock.recv.assert_has_calls([call(DATA_SIZE), call(DATA_SIZE)])
 
     def test_vehicule_speed(self):
-        self.bluetooth_device_mock.recv = MagicMock(return_value="41 0D B4")
+        self.bluetooth_device_mock.recv = MagicMock(side_effect=["41 0D B4", ""])
 
         self.assertEquals(180, self.odb_utils.vehicule_speed())
 
         self.bluetooth_device_mock.send.assert_called_once_with("010D\r")
-        self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
+        self.bluetooth_device_mock.recv.assert_has_calls([call(DATA_SIZE), call(DATA_SIZE)])
 
 if __name__ == '__main__':
     unittest.main()
