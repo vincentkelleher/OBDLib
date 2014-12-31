@@ -49,8 +49,8 @@ class ODBUtils:
         if at_sp_0_response[-1] != "OK":
             raise InvalidCommandResponseException("OK", at_sp_0_response[-1])
 
-    def send(self, mode, pid):
-        odb_request = ODBRequest(self.bluetooth_device, mode, pid)
+    def send(self, mode, pid, number_of_lines=None):
+        odb_request = ODBRequest(self.bluetooth_device, mode, pid, number_of_lines)
         odb_request.send()
 
         return odb_request.data
@@ -62,17 +62,17 @@ class ODBUtils:
         return odb_command.data
 
     def engine_load(self):
-        data = self.send("01", "04")
+        data = self.send("01", "04", "1")
 
         return math.floor(float(int("0x" + data[2], 0)) / 255 * 100)
 
     def engine_rpm(self):
-        data = self.send("01", "0C")
+        data = self.send("01", "0C", "1")
 
         return int("0x" + data[2] + data[3], 0) / 4
 
     def vehicule_speed(self):
-        data = self.send("01", "0D")
+        data = self.send("01", "0D", "1")
 
         return int("0x" + data[2], 0)
 
@@ -160,10 +160,15 @@ class ODBCommand(object):
 
 
 class ODBRequest(ODBCommand):
-    def __init__(self, serial_device, mode, pid):
-        super(ODBRequest, self).__init__(serial_device, mode + " " + pid)
+    def __init__(self, serial_device, mode, pid, number_of_lines=None):
+        command = mode + " " + pid
+        if number_of_lines is not None:
+            command += " " + number_of_lines
+
+        super(ODBRequest, self).__init__(serial_device, command)
         self._mode = mode
         self._pid = pid
+        self._number_of_lines = number_of_lines
 
     def send(self):
         super(ODBRequest, self).send()
@@ -198,4 +203,21 @@ class ODBRequest(ODBCommand):
     @pid.setter
     def pid(self, pid):
         self._pid = pid
+
+    @property
+    def number_of_lines(self):
+        return self._number_of_lines
+
+    @number_of_lines.setter
+    def number_of_lines(self, number_of_lines):
+        self._number_of_lines = number_of_lines
+
+    @property
+    def command(self):
+        command = self.mode + " " + self.pid
+        if self.number_of_lines is not None:
+            command += " " + self.number_of_lines
+
+        return command
+
 

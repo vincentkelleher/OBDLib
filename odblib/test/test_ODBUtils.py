@@ -53,7 +53,7 @@ class TestODBUtils(unittest.TestCase):
         self.bluetooth_device_mock.send.assert_has_calls([call("AT Z\r"), call("AT SP 00\r")])
         self.bluetooth_device_mock.recv.assert_has_calls([call(DATA_SIZE), call(DATA_SIZE)])
 
-    def test_initialize_with_AT_SP_00_error(self):
+    def test_initialize_with_AT_SP_0_error(self):
         self.bluetooth_device_mock.recv = MagicMock(
             side_effect=["AT Z\r\r\rELM327 v2.1\r\r\r>", "AT SP 00\rOK\r\r>", "AT SP 0\rNOT OK\r\r>"])
 
@@ -78,34 +78,34 @@ class TestODBUtils(unittest.TestCase):
 
     def test_engine_load(self):
         self.bluetooth_device_mock.recv = MagicMock(
-            side_effect=["01 04\rSEARCHING...\r", "41 04 55 \r", "\r>", "01 04\r41 04 55 \r", "\r>"])
+            side_effect=["01 04 1\rSEARCHING...\r", "41 04 55 \r", "\r>", "01 04 1\r41 04 55 \r", "\r>"])
 
         self.assertEquals(33, self.odb_utils.engine_load())
         self.assertEquals(33, self.odb_utils.engine_load())
 
-        self.bluetooth_device_mock.send.assert_has_calls([call("01 04\r"), call("01 04\r")])
+        self.bluetooth_device_mock.send.assert_has_calls([call("01 04 1\r"), call("01 04 1\r")])
         self.bluetooth_device_mock.recv.assert_has_calls(
             [call(DATA_SIZE), call(DATA_SIZE), call(DATA_SIZE), call(DATA_SIZE)])
 
     def test_engine_rpm(self):
         self.bluetooth_device_mock.recv = MagicMock(
-            side_effect=["01 0C\rSEARCHING...\r", "41 0C 1A F8 \r", "\r>", "01 0C\r41 0C 1C 20 \r", "\r>"])
+            side_effect=["01 0C 1\rSEARCHING...\r", "41 0C 1A F8 \r", "\r>", "01 0C 1\r41 0C 1C 20 \r", "\r>"])
 
         self.assertEquals(1726, self.odb_utils.engine_rpm())
         self.assertEquals(1800, self.odb_utils.engine_rpm())
 
-        self.bluetooth_device_mock.send.assert_has_calls([call("01 0C\r"), call("01 0C\r")])
+        self.bluetooth_device_mock.send.assert_has_calls([call("01 0C 1\r"), call("01 0C 1\r")])
         self.bluetooth_device_mock.recv.assert_has_calls(
             [call(DATA_SIZE), call(DATA_SIZE), call(DATA_SIZE), call(DATA_SIZE), call(DATA_SIZE)])
 
     def test_vehicule_speed(self):
         self.bluetooth_device_mock.recv = MagicMock(
-            side_effect=["01 0D\rSEARCHING...\r", "41 0D B4 \r", "\r>", "01 0D\r41 0D B4 \r", "\r>"])
+            side_effect=["01 0D 1\rSEARCHING...\r", "41 0D B4 \r", "\r>", "01 0D 1\r41 0D B4 \r", "\r>"])
 
         self.assertEquals(180, self.odb_utils.vehicule_speed())
         self.assertEquals(180, self.odb_utils.vehicule_speed())
 
-        self.bluetooth_device_mock.send.assert_has_calls([call("01 0D\r"), call("01 0D\r")])
+        self.bluetooth_device_mock.send.assert_has_calls([call("01 0D 1\r"), call("01 0D 1\r")])
         self.bluetooth_device_mock.recv.assert_has_calls(
             [call(DATA_SIZE), call(DATA_SIZE), call(DATA_SIZE), call(DATA_SIZE), call(DATA_SIZE)])
 

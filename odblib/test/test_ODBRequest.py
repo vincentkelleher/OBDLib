@@ -48,6 +48,17 @@ class TestODBRequest(unittest.TestCase):
         self.bluetooth_device_mock.send.assert_called_once_with("01 0C\r")
         self.odb_request.validate_checksum.assert_called_once_with()
 
+    def test_send_with_number_of_lines(self):
+        self.odb_request = ODBRequest(self.bluetooth_device_mock, "01", "0C", "1")
+        self.odb_request.validate_checksum = MagicMock()
+        self.bluetooth_device_mock.recv = MagicMock(side_effect=["01 0C 1\r41 0C 1A F8 \r", "\r>"])
+
+        self.odb_request.send()
+        self.assertEquals(['01 0C 1', '41 0C 1A F8 '], self.odb_request.data)
+
+        self.bluetooth_device_mock.send.assert_called_once_with("01 0C 1\r")
+        self.odb_request.validate_checksum.assert_called_once_with()
+
 
 if __name__ == '__main__':
     unittest.main()
