@@ -3,7 +3,8 @@ from __future__ import absolute_import
 import math
 import bluetooth
 
-from .ODBUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException
+from .ODBUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException, \
+    InvalidCommandResponseException
 from bluetooth import BluetoothSocket, RFCOMM
 
 DATA_SIZE = 1024
@@ -34,13 +35,19 @@ class ODBUtils:
 
     def initialize(self):
         print("Initializing ELM327...")
-        self.send_command("AT Z")
+        atz_response = self.send_command("AT Z")
+        if "ELM" not in atz_response[-1]:
+            raise InvalidCommandResponseException("***ELM***", atz_response[-1])
 
         print("Deleting stored protocol...")
-        self.send_command("AT SP 00")
+        at_sp_00_response = self.send_command("AT SP 00")
+        if at_sp_00_response[-1] != "OK":
+            raise InvalidCommandResponseException("OK", at_sp_00_response[-1])
 
         print("Selecting protocol...")
-        self.send_command("AT SP 0")
+        at_sp_0_response = self.send_command("AT SP 0")
+        if at_sp_0_response[-1] != "OK":
+            raise InvalidCommandResponseException("OK", at_sp_0_response[-1])
 
     def send(self, mode, pid):
         odb_request = ODBRequest(self.bluetooth_device, mode, pid)

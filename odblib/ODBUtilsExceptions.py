@@ -7,6 +7,14 @@ class NoResponseException(ValueError):
 
         super(NoResponseException, self).__init__(*args)
 
+
+class InvalidCommandResponseException(ValueError):
+    def __init__(self, expected, actual, *args):
+        self.message = "Wrong command response - expected " + expected + " got " + actual
+
+        super(InvalidCommandResponseException, self).__init__(self.message, *args)
+
+
 class InvalidChecksumException(ValueError):
     def __init__(self, expected, actual, *args):
         self.message = "Wrong mode response - expected " + expected + " got " + actual
