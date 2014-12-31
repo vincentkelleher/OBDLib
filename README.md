@@ -1,6 +1,6 @@
 ODBLib
 ======
-[![Build Status](https://travis-ci.org/k2r79/ODBLib.svg?branch=develop)](https://travis-ci.org/k2r79/ODBLib) [![Coverage Status](https://coveralls.io/repos/k2r79/ODBLib/badge.png?branch=develop)](https://coveralls.io/r/k2r79/ODBLib?branch=develop)
+[![Build Status](https://travis-ci.org/k2r79/OBDLib.svg?branch=develop)](https://travis-ci.org/k2r79/OBDLib) [![Coverage Status](https://coveralls.io/repos/k2r79/OBDLib/badge.png?branch=develop)](https://coveralls.io/r/k2r79/OBDLib?branch=develop)
 
 ODB II library that allows to connect and interact with a Bluetooth ELM327.
 
