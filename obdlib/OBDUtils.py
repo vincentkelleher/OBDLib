@@ -3,14 +3,14 @@ from __future__ import absolute_import
 import math
 import bluetooth
 
-from .ODBUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException, \
+from .OBDUtilsExceptions import InvalidResponseModeException, InvalidResponsePIDException, NoResponseException, \
     InvalidCommandResponseException
 from bluetooth import BluetoothSocket, RFCOMM
 
 DATA_SIZE = 1024
 
 
-class ODBUtils:
+class OBDUtils:
     def __init__(self, bluetooth_device_address, bluetooth_device_port):
         self._bluetooth_device = None
         self._bluetooth_device_address = bluetooth_device_address
@@ -50,16 +50,16 @@ class ODBUtils:
             raise InvalidCommandResponseException("OK", at_sp_0_response[-1])
 
     def send(self, mode, pid, number_of_lines=None):
-        odb_request = ODBRequest(self.bluetooth_device, mode, pid, number_of_lines)
-        odb_request.send()
+        obd_request = OBDRequest(self.bluetooth_device, mode, pid, number_of_lines)
+        obd_request.send()
 
-        return odb_request.data
+        return obd_request.data
 
     def send_command(self, command):
-        odb_command = ODBCommand(self.bluetooth_device, command)
-        odb_command.send()
+        obd_command = OBDCommand(self.bluetooth_device, command)
+        obd_command.send()
 
-        return odb_command.data
+        return obd_command.data
 
     def engine_load(self):
         data = self.send("01", "04", "1")
@@ -101,7 +101,7 @@ class ODBUtils:
         self._bluetooth_device_port = bluetooth_device_port
 
 
-class ODBCommand(object):
+class OBDCommand(object):
     def __init__(self, serial_device, command):
         self._serial_device = serial_device
         self._command = command
@@ -159,19 +159,19 @@ class ODBCommand(object):
         self._data = data
 
 
-class ODBRequest(ODBCommand):
+class OBDRequest(OBDCommand):
     def __init__(self, serial_device, mode, pid, number_of_lines=None):
         command = mode + " " + pid
         if number_of_lines is not None:
             command += " " + number_of_lines
 
-        super(ODBRequest, self).__init__(serial_device, command)
+        super(OBDRequest, self).__init__(serial_device, command)
         self._mode = mode
         self._pid = pid
         self._number_of_lines = number_of_lines
 
     def send(self):
-        super(ODBRequest, self).send()
+        super(OBDRequest, self).send()
         self.validate_checksum()
 
     def validate_checksum(self):

@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 import argparse
 import time
-from odblib.ODBUtils import ODBUtils
+from obdlib.OBDUtils import OBDUtils
 
 main_parser = argparse.ArgumentParser(prog="ODB", description="Connect to a bluetooth ODB II device")
 
@@ -47,16 +47,16 @@ args = main_parser.parse_args()
 
 odbutils = None
 if args.scan:
-    scanned_devices = ODBUtils.scan()
+    scanned_devices = OBDUtils.scan()
 elif args.address is not None \
         and args.port is not None:
-    odbutils = ODBUtils(args.address, args.port)
+    odbutils = OBDUtils(args.address, args.port)
     odbutils.connect()
 elif args.address is not None \
         and args.port is not None \
         and args.mode is not None \
         and args.pid is not None:
-    odbutils = ODBUtils(args.address, args.port)
+    odbutils = OBDUtils(args.address, args.port)
     odbutils.connect()
 
     data = odbutils.send(args.mode, args.port)
@@ -64,7 +64,7 @@ elif args.address is not None \
 elif args.address is not None \
         and args.port is not None \
         and args.engine_load:
-    odbutils = ODBUtils(args.address, args.port)
+    odbutils = OBDUtils(args.address, args.port)
     odbutils.connect()
 
     print("Collecting engine load...")
@@ -75,7 +75,7 @@ elif args.address is not None \
 elif args.address is not None \
         and args.port is not None \
         and args.engine_rpm:
-    odbutils = ODBUtils(args.address, args.port)
+    odbutils = OBDUtils(args.address, args.port)
     odbutils.connect()
 
     print("Collecting engine RPM...")
@@ -86,7 +86,7 @@ elif args.address is not None \
 elif args.address is not None \
         and args.port is not None \
         and args.vehicule_speed:
-    odbutils = ODBUtils(args.address, args.port)
+    odbutils = OBDUtils(args.address, args.port)
     odbutils.connect()
 
     print("Collecting vehicule speed...")

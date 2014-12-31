@@ -8,6 +8,6 @@ before_install: sudo apt-get install libbluetooth-dev
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -r requirements.txt
 # command to run tests, e.g. python setup.py test
-script: nosetests --cover-branches --with-coverage --cover-erase --cover-package=odblib
+script: nosetests --cover-branches --with-coverage --cover-erase --cover-package=obdlib
 # Coveralls statistics
 after_success: coveralls
