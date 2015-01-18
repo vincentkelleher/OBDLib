@@ -102,21 +102,24 @@ class OBDUtils:
 
 
 class OBDCommand(object):
-    def __init__(self, serial_device, command):
+    def __init__(self, serial_device, command, debug=False):
         self._serial_device = serial_device
         self._command = command
         self._data = None
+        self._debug = debug
 
     def send(self):
         query_string = self.command + "\r"
 
-        print("Sending %s..." % repr(query_string))
+        if self.debug is True:
+            print("Sending %s..." % repr(query_string))
         self.serial_device.send(query_string)
 
         self.data = ""
         while True:
             tmp_data = self.serial_device.recv(DATA_SIZE)
-            print("Received %s..." % repr(tmp_data))
+            if self.debug is True:
+                print("Received %s..." % repr(tmp_data))
 
             self.data += tmp_data
 
@@ -157,6 +160,14 @@ class OBDCommand(object):
     @data.setter
     def data(self, data):
         self._data = data
+
+    @property
+    def debug(self):
+        return self._debug
+
+    @debug.setter
+    def debug(self, debug):
+        self._debug = debug
 
 
 class OBDRequest(OBDCommand):
