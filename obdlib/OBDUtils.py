@@ -41,6 +41,11 @@ class OBDUtils:
         self.bluetooth_device.close()
 
     def initialize(self):
+        print("Initializing ELM327...")
+        atz_response = self.send_command("AT WS")
+        if "ELM" not in atz_response[-1]:
+            raise InvalidCommandResponseException("***ELM***", atz_response[-1])
+
         print("Deleting stored protocol...")
         at_sp_00_response = self.send_command("AT SP 00")
         if at_sp_00_response[-1] != "OK":
@@ -50,11 +55,6 @@ class OBDUtils:
         at_sp_0_response = self.send_command("AT SP 0")
         if at_sp_0_response[-1] != "OK":
             raise InvalidCommandResponseException("OK", at_sp_0_response[-1])
-
-        print("Initializing ELM327...")
-        atz_response = self.send_command("AT Z")
-        if "ELM" not in atz_response[-1]:
-            raise InvalidCommandResponseException("***ELM***", atz_response[-1])
 
     def send(self, mode, pid, number_of_lines=None):
         obd_request = OBDRequest(self.bluetooth_device, mode, pid, number_of_lines, self.debug)

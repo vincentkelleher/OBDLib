@@ -33,40 +33,40 @@ class TestOBDUtils(unittest.TestCase):
 
     def test_initialize(self):
         self.bluetooth_device_mock.recv = MagicMock(
-            side_effect=["AT SP 00\rOK\r\r>", "AT SP 0\rOK\r\r>", "AT Z\r\r\rELM327 v2.1\r\r\r>"])
+            side_effect=["AT WS\r\r\rELM327 v2.1\r\r\r>", "AT SP 00\rOK\r\r>", "AT SP 0\rOK\r\r>"])
         self.obd_utils.initialize()
 
-        self.bluetooth_device_mock.send.assert_has_calls([call("AT SP 00\r"), call("AT SP 0\r"), call("AT Z\r")])
+        self.bluetooth_device_mock.send.assert_has_calls([call("AT WS\r"), call("AT SP 00\r"), call("AT SP 0\r")])
         self.bluetooth_device_mock.recv.assert_has_calls(
             [call(DATA_SIZE), call(DATA_SIZE), call(DATA_SIZE)])
 
     def test_initialize_with_ATZ_error(self):
         self.bluetooth_device_mock.recv = MagicMock(
-            side_effect=["AT SP 00\rOK\r\r>", "AT SP 0\rOK\r\r>", "AT Z\r\r\rNOT OK\r\r\r>"])
+            side_effect=["AT Z\r\r\rNOT OK\r\r\r>", "AT SP 00\rOK\r\r>", "AT SP 0\rOK\r\r>"])
 
         self.assertRaises(InvalidCommandResponseException, lambda: self.obd_utils.initialize())
 
-        self.bluetooth_device_mock.send.assert_has_calls([call("AT SP 00\r"), call("AT SP 0\r"), call("AT Z\r")])
-        self.bluetooth_device_mock.recv.assert_has_calls(
-            [call(DATA_SIZE), call(DATA_SIZE), call(DATA_SIZE)])
-
-    def test_initialize_with_AT_SP_0_error(self):
-        self.bluetooth_device_mock.recv = MagicMock(
-            side_effect=["AT SP 00\rOK\r\r>", "AT SP 0\rNOT OK\r\r>", "AT Z\r\r\rELM327 v2.1\r\r\r>"])
-
-        self.assertRaises(InvalidCommandResponseException, lambda: self.obd_utils.initialize())
-
-        self.bluetooth_device_mock.send.assert_has_calls([call("AT SP 00\r"), call("AT SP 0\r")])
-        self.bluetooth_device_mock.recv.assert_has_calls([call(DATA_SIZE), call(DATA_SIZE)])
+        self.bluetooth_device_mock.send.assert_has_calls([call("AT WS\r")])
+        self.bluetooth_device_mock.recv.assert_has_calls([call(DATA_SIZE)])
 
     def test_initialize_with_AT_SP_00_error(self):
         self.bluetooth_device_mock.recv = MagicMock(
-            side_effect=["AT SP 00\rNOT OK\r\r>", "AT SP 0\rOK\r\r>", "AT Z\r\r\rELM327 v2.1\r\r\r>"])
+            side_effect=["AT WS\r\r\rELM327 v2.1\r\r\r>", "AT SP 00\rNOT OK\r\r>", "AT SP 0\rOK\r\r>"])
 
         self.assertRaises(InvalidCommandResponseException, lambda: self.obd_utils.initialize())
 
-        self.bluetooth_device_mock.send.assert_called_once_with("AT SP 00\r")
-        self.bluetooth_device_mock.recv.assert_called_once_with(DATA_SIZE)
+        self.bluetooth_device_mock.send.assert_has_calls([call("AT WS\r"), call("AT SP 00\r")])
+        self.bluetooth_device_mock.recv.assert_has_calls([call(DATA_SIZE), call(DATA_SIZE)])
+
+    def test_initialize_with_AT_SP_0_error(self):
+        self.bluetooth_device_mock.recv = MagicMock(
+            side_effect=["AT WS\r\r\rELM327 v2.1\r\r\r>", "AT SP 00\rOK\r\r>", "AT SP 0\rNOT OK\r\r>"])
+
+        self.assertRaises(InvalidCommandResponseException, lambda: self.obd_utils.initialize())
+
+        self.bluetooth_device_mock.send.assert_has_calls([call("AT WS\r"), call("AT SP 00\r"), call("AT SP 0\r")])
+        self.bluetooth_device_mock.recv.assert_has_calls([call(DATA_SIZE), call(DATA_SIZE), call(DATA_SIZE)])
+
 
     @patch("bluetooth.discover_devices")
     def test_scan(self, bluetooth_discover_devices_mock):
