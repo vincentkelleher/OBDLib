@@ -27,6 +27,10 @@ class TestOBDUtils(unittest.TestCase):
         self.obd_utils.connect()
         self.bluetooth_device_mock.connect.assert_called_once_with((self.bluetooth_device_name, self.port))
 
+    def tearDown(self):
+        self.obd_utils.close()
+        self.bluetooth_device_mock.close.assert_called_once_with()
+
     def test_initialize(self):
         self.bluetooth_device_mock.recv = MagicMock(
             side_effect=["AT SP 00\rOK\r\r>", "AT SP 0\rOK\r\r>", "AT Z\r\r\rELM327 v2.1\r\r\r>"])

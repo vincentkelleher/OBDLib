@@ -11,10 +11,11 @@ DATA_SIZE = 1024
 
 
 class OBDUtils:
-    def __init__(self, bluetooth_device_address, bluetooth_device_port):
+    def __init__(self, bluetooth_device_address, bluetooth_device_port, debug=False):
         self._bluetooth_device = None
         self._bluetooth_device_address = bluetooth_device_address
         self._bluetooth_device_port = bluetooth_device_port
+        self._debug = debug
 
     @staticmethod
     def scan():
@@ -33,6 +34,12 @@ class OBDUtils:
 
         self.bluetooth_device.connect((self.bluetooth_device_address, self.bluetooth_device_port))
 
+    def close(self):
+        if self.debug is True:
+            print("Closing socket...")
+
+        self.bluetooth_device.close()
+
     def initialize(self):
         print("Deleting stored protocol...")
         at_sp_00_response = self.send_command("AT SP 00")
@@ -50,13 +57,13 @@ class OBDUtils:
             raise InvalidCommandResponseException("***ELM***", atz_response[-1])
 
     def send(self, mode, pid, number_of_lines=None):
-        obd_request = OBDRequest(self.bluetooth_device, mode, pid, number_of_lines)
+        obd_request = OBDRequest(self.bluetooth_device, mode, pid, number_of_lines, self.debug)
         obd_request.send()
 
         return obd_request.data
 
     def send_command(self, command):
-        obd_command = OBDCommand(self.bluetooth_device, command)
+        obd_command = OBDCommand(self.bluetooth_device, command, self.debug)
         obd_command.send()
 
         return obd_command.data
@@ -99,6 +106,14 @@ class OBDUtils:
     @bluetooth_device_port.setter
     def bluetooth_device_port(self, bluetooth_device_port):
         self._bluetooth_device_port = bluetooth_device_port
+
+    @property
+    def debug(self):
+        return self._debug
+
+    @debug.setter
+    def debug(self, debug):
+        self._debug = debug
 
 
 class OBDCommand(object):
@@ -171,7 +186,7 @@ class OBDCommand(object):
 
 
 class OBDRequest(OBDCommand):
-    def __init__(self, serial_device, mode, pid, number_of_lines=None):
+    def __init__(self, serial_device, mode, pid, number_of_lines=None, debug=False):
         command = mode + " " + pid
         if number_of_lines is not None:
             command += " " + number_of_lines
@@ -180,6 +195,7 @@ class OBDRequest(OBDCommand):
         self._mode = mode
         self._pid = pid
         self._number_of_lines = number_of_lines
+        self._debug = debug
 
     def send(self):
         super(OBDRequest, self).send()
